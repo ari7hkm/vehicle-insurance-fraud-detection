@@ -1,7 +1,4 @@
-import numpy as np
-import pandas as pd
-
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from imblearn.over_sampling import SMOTE
@@ -11,30 +8,60 @@ from config import *
 
 
 def main():
-    df = load_data(DATA_PATH)
-    df = preprocess(df)
-    print(df.shape)
+    df = prepare_dataset(DATA_PATH)
 
-    X = df.drop(columns=TARGET_COLUMN)
-    y = df[TARGET_COLUMN]
-
-    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, 
-                                                        random_state=RANDOM_STATE, stratify=y)
+    x_train, x_test, y_train, y_test = split_data(df)
     
-    smote = SMOTE(random_state=0)
-    x_train_resampled, y_train_resampled = smote.fit_resample(x_train, y_train)
+    x_train, y_train = balance_dataset(x_train, y_train)
 
-    classifier = RandomForestClassifier(n_estimators=N_ESTIMATORS, max_depth=MAX_DEPTH, min_samples_split=MIN_SAMPLES_SPLIT,
-                                        min_samples_leaf=MIN_SAMPLES_LEAF, verbose=VERBOSE, random_state=RANDOM_STATE,
-                                        bootstrap=True, max_features=MAX_FEATURES)
+    best_model = tune_random_forest(x_train, y_train)
+    
+    metrics = evaluate_model(best_model, x_test, y_test)
+    
+    for metric, value in metrics.items():
+        print(f"{metric:<12}: {value:.4f}")
 
-    model = classifier.fit(x_train_resampled, y_train_resampled)
+
+
+def prepare_dataset(data_path):
+    df = load_data(data_path)
+    return preprocess(df)
+
+
+def split_data(data):
+    X = data.drop(columns=TARGET_COLUMN)
+    y = data[TARGET_COLUMN]
+
+    return train_test_split(X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y)
+
+
+def balance_dataset(x_train, y_train):
+    smote = SMOTE(random_state=RANDOM_STATE)
+
+    return smote.fit_resample(x_train, y_train)
+
+def tune_random_forest(x, y):
+    rf = RandomForestClassifier(random_state=RANDOM_STATE)
+    random_search = RandomizedSearchCV(estimator=rf, param_distributions=PARAM_DIST, n_iter=10, cv=3, scoring="f1", 
+                                       verbose=2, random_state=RANDOM_STATE, n_jobs=1)
+    random_search.fit(x, y)
+    print(f"Best parameters: {random_search.best_params_}")
+    print(f"Best score: {random_search.best_score_}")
+
+    return random_search.best_estimator_
+
+
+def evaluate_model(model, x_test, y_test):
     y_pred = model.predict(x_test)
 
-    print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
-    print(f"Precision: {precision_score(y_test, y_pred)}")
-    print(f"Recall: {recall_score(y_test, y_pred)}")
-    print(f"F1 Score: {f1_score(y_test, y_pred)}")
+    return {
+        "Accuracy": accuracy_score(y_test, y_pred),
+        "Precision": precision_score(y_test, y_pred),
+        "Recall": recall_score(y_test, y_pred),
+        "f1-score": f1_score(y_test, y_pred)
+    }
+
+
 
 if __name__ == "__main__":
     main()

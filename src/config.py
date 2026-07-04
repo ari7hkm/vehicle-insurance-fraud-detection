@@ -8,3 +8,11 @@ MIN_SAMPLES_SPLIT = 6
 MIN_SAMPLES_LEAF = 5
 VERBOSE = 1
 MAX_FEATURES = "log2"
+PARAM_DIST = {
+    "n_estimators": [300, 400, 500, 600, 600, 700, 800],
+    "max_depth": [8, 9, 10, 11, 12, 13],
+    "min_samples_split": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "min_samples_leaf": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "max_features": ["sqrt", "log2", None],
+    "bootstrap": [True, False]
+}
