@@ -1,6 +1,8 @@
+import joblib
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from imblearn.over_sampling import SMOTE
+from pathlib import Path
 from config import RANDOM_STATE, PARAM_DIST
 
 
@@ -19,3 +21,11 @@ def tune_random_forest(x, y):
     print(f"Best score: {random_search.best_score_}")
 
     return random_search.best_estimator_
+
+def save_model(model, model_path):
+    model_path = Path(model_path)
+    
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+
+    joblib.dump(model, model_path)
+    print(F"Model saved to {model_path}")

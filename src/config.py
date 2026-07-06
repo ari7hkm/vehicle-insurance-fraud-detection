@@ -1,3 +1,9 @@
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+ARTIFACTS_PATH = PROJECT_ROOT / "artifacts"
+MODELS_PATH = ARTIFACTS_PATH / "models/random_forest.pkl"
+
 DATA_PATH = "data/fraud_oracle.csv"
 TARGET_COLUMN = "FraudFound_P"
 TEST_SIZE = 0.2

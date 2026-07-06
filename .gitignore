@@ -10,3 +10,9 @@ env/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Generated ML artifacts
+artifacts/models/*.pkl
+artifacts/logs/*.log
+artifacts/metrics/*.json
+artifacts/plots/*.png
