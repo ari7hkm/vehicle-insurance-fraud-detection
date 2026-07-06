@@ -2,8 +2,8 @@ from sklearn.model_selection import train_test_split
 from data_loader import load_data
 from preprocessing import preprocess
 from models import balance_dataset, tune_random_forest, save_model
-from evaluation import evaluate_model
-from config import DATA_PATH, TARGET_COLUMN, RANDOM_STATE, TEST_SIZE, MODELS_PATH
+from evaluation import evaluate_model, save_metrics
+from config import DATA_PATH, TARGET_COLUMN, RANDOM_STATE, TEST_SIZE, MODELS_PATH, METRICS_PATH
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
         print(f"{metric:<12}: {value:.4f}")
 
     save_model(best_model, MODELS_PATH)
-
+    save_metrics(metrics, METRICS_PATH)
 
 
 def prepare_dataset(data_path):
